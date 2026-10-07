@@ -11,7 +11,8 @@ from a host that can reach Binance, then re-run the tests.
 
 | File | Source | Exercises |
 |---|---|---|
-| `exchange_info.json` | `GET /fapi/v1/exchangeInfo` | filters to TRADING USDT perpetuals (drops USDC, quarterly, SETTLING) |
+| `exchange_info.json` | `GET /fapi/v1/exchangeInfo` | filters to TRADING USDT perpetuals (drops USDC, quarterly, SETTLING); `1000PEPEUSDT` for symbol mapping |
+| `funding_info.json` | `GET /fapi/v1/fundingInfo` | per-symbol funding interval (ETHUSDT adjusted to 4h; BTC/SOL absent, so venue default) |
 | `depth_snapshot_ethusdt.json` | `GET /fapi/v1/depth?symbol=ETHUSDT&limit=1000` | initial sync, `lastUpdateId = L` |
 | `depth_updates_ethusdt.jsonl` | `/public/stream?streams=ethusdt@depth@100ms` | 1: `u < L` dropped · 2: `U <= L <= u` first applied · 3: removes an unknown level · 4: removes best ask · 5: `pu` gap · 6: continues after resync |
 | `depth_snapshot_ethusdt_resync.json` | `GET /fapi/v1/depth` | resync after the gap (`lastUpdateId = L + 50`) |

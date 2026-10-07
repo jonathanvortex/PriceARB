@@ -407,6 +407,73 @@
    ],
    "liquidationFee": "0.012500",
    "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "1000PEPEUSDT",
+   "pair": "1000PEPEUSDT",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "1000PEPE",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 7,
+   "quantityPrecision": 0,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.0000001",
+     "maxPrice": "200",
+     "tickSize": "0.0000001"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "1",
+     "maxQty": "10000",
+     "stepSize": "1"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "1",
+     "maxQty": "2000",
+     "stepSize": "1"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
   }
  ]
 }
