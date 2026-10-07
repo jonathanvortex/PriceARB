@@ -1,0 +1,40 @@
+# Phase 1 census run config. Thresholds here only control reporting —
+# raw SpreadObs are stored pre-threshold so anything can be replayed.
+
+universe:
+  canonicals: [ETH, BTC, SOL]
+  hedge_venue: binance
+  venue_pairs:
+    - [hyperliquid, binance]
+    # - [papertrade, binance]   # after HL adapter is validated
+
+venues:
+  # Fee assumptions in bps. TODO: confirm tiers with team (spec §6) and verify against docs.
+  binance:
+    kind: cex
+    maker_fee_bps: 2.0
+    taker_fee_bps: 5.0
+    funding_interval_h: 8
+  hyperliquid:
+    kind: perp_dex
+    maker_fee_bps: 1.5
+    taker_fee_bps: 4.5
+    funding_interval_h: 1
+
+recording:
+  book_depth_levels: 20
+  snapshot_throttle_ms: 100
+  funding_poll_s: 60
+  reconnect_backoff_s: [1, 2, 5, 10, 30]
+
+spread:
+  size_tiers_usd: [5000, 25000, 100000]
+  max_staleness_ms: 250
+
+episodes:
+  report_thresholds_bps: [0, 5, 10, 20]
+  episode_gap_tolerance_ms: 200
+
+storage:
+  root: data/
+  format: parquet

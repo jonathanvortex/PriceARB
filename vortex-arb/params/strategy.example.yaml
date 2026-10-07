@@ -1,0 +1,32 @@
+# Phase 2 strategy params. Sweeps generate variants of this file.
+# Not used in Phase 1.
+
+taker_taker:
+  min_net_edge_bps: 8          # edge required AFTER fees (the "buffer")
+  leg_risk_buffer_bps: 3       # extra edge to cover a missed leg
+  execution_delay_ms: 150      # replace with measured latency from census
+  max_hold_s: 3600
+  size_tiers_usd: [5000, 25000]
+
+maker_hedge:
+  quote_offset_bps: 15         # distance from Binance mid
+  vol_widen_mult: 2.0          # widen when short-term vol spikes
+  vol_lookback_s: 30
+  refresh_threshold_bps: 3     # re-quote when Binance mid moves this much
+  hedge_delay_ms: 150          # replace with measured value
+  quote_size_usd: 10000
+  max_inventory_usd: 50000
+
+sim:
+  maker_fill_rule: trade_through   # fill only if a trade prints through our price
+  queue_position: back
+  markout_horizons_s: [1, 5, 30]
+  walk_forward:
+    train_days: 5
+    test_days: 1
+
+risk:                              # enforced in sim now, live in Phase 3
+  max_gross_notional_usd: 250000
+  min_free_margin_pct: 40
+  kill_switch_markout_bps: -10
+  cooldown_after_loss_s: 60
