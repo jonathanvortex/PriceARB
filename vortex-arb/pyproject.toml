@@ -9,3 +9,7 @@ dev = ["pytest", "pytest-asyncio", "ruff", "pre-commit", "jupyter", "pandas", "m
 
 [tool.ruff]
 line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
