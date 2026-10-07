@@ -1,0 +1,412 @@
+{
+ "timezone": "UTC",
+ "serverTime": 1791360000000,
+ "futuresType": "U_MARGINED",
+ "rateLimits": [],
+ "exchangeFilters": [],
+ "assets": [],
+ "symbols": [
+  {
+   "symbol": "BTCUSDT",
+   "pair": "BTCUSDT",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "BTC",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.10"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "2000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "ETHUSDT",
+   "pair": "ETHUSDT",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "ETH",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.01"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "2000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "SOLUSDT",
+   "pair": "SOLUSDT",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "SOL",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.0100"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "1",
+     "maxQty": "10000",
+     "stepSize": "1"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "1",
+     "maxQty": "2000",
+     "stepSize": "1"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "ETHUSDC",
+   "pair": "ETHUSDC",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "ETH",
+   "quoteAsset": "USDC",
+   "marginAsset": "USDC",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.01"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "2000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "BTCUSDT_261225",
+   "pair": "BTCUSDT",
+   "contractType": "CURRENT_QUARTER",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "TRADING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "BTC",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.10"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "2000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  },
+  {
+   "symbol": "XYZUSDT",
+   "pair": "XYZUSDT",
+   "contractType": "PERPETUAL",
+   "deliveryDate": 4133404800000,
+   "onboardDate": 1569398400000,
+   "status": "SETTLING",
+   "maintMarginPercent": "2.5000",
+   "requiredMarginPercent": "5.0000",
+   "baseAsset": "XYZ",
+   "quoteAsset": "USDT",
+   "marginAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "baseAssetPrecision": 8,
+   "quotePrecision": 8,
+   "underlyingType": "COIN",
+   "underlyingSubType": [],
+   "settlePlan": 0,
+   "triggerProtect": "0.0500",
+   "filters": [
+    {
+     "filterType": "PRICE_FILTER",
+     "minPrice": "0.01",
+     "maxPrice": "1000000",
+     "tickSize": "0.01"
+    },
+    {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "2000",
+     "stepSize": "0.001"
+    },
+    {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "20"
+    },
+    {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0500",
+     "multiplierDown": "0.9500",
+     "multiplierDecimal": "4"
+    }
+   ],
+   "orderTypes": [
+    "LIMIT",
+    "MARKET"
+   ],
+   "timeInForce": [
+    "GTC",
+    "IOC",
+    "FOK",
+    "GTX"
+   ],
+   "liquidationFee": "0.012500",
+   "marketTakeBound": "0.05"
+  }
+ ]
+}
