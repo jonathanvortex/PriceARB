@@ -63,7 +63,7 @@ class Instrument:
     quote_ccy: str                 # "USDT" | "USDC" — do not treat as equal silently
     tick_size: Decimal
     lot_size: Decimal
-    contract_mult: Decimal = Decimal(1)
+    contract_mult: Decimal = Decimal(1)  # canonical units per venue qty unit (adapters/symbols.py)
 
 
 # ---------------------------------------------------------------------------
@@ -99,10 +99,11 @@ class FundingObs:
     canonical: str
     ts_exchange: int
     ts_local: int
-    current_rate: Decimal          # per funding interval
+    current_rate: Decimal          # live rate for the current interval (paid at next_funding_ts)
     predicted_rate: Decimal | None
     mark_px: Decimal
     oracle_px: Decimal | None
+    funding_interval_h: int        # interval current_rate applies to, as of this observation
     next_funding_ts: int | None = None
 
 

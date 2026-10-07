@@ -1,0 +1,16 @@
+[
+ {
+  "symbol": "ETHUSDT",
+  "adjustedFundingRateCap": "0.02000000",
+  "adjustedFundingRateFloor": "-0.02000000",
+  "fundingIntervalHours": 4,
+  "disclaimer": false
+ },
+ {
+  "symbol": "BLZUSDT",
+  "adjustedFundingRateCap": "0.02500000",
+  "adjustedFundingRateFloor": "-0.02500000",
+  "fundingIntervalHours": 8,
+  "disclaimer": false
+ }
+]

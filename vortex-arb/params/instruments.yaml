@@ -1,0 +1,14 @@
+# Venue symbol -> canonical asset mapping, shared by every adapter (spec §3).
+#
+# Default for a symbol not listed here: canonical = the venue's base asset, contract_mult = 1.
+# contract_mult = canonical units in one unit of venue quantity. Adapters emit prices and
+# sizes in canonical units (px / contract_mult, qty * contract_mult), so the same canonical
+# is comparable across venues.
+#
+# Check each entry against the venue's own instrument list before adding it (CLAUDE.md rule 8).
+
+symbol_overrides:
+  binance: {}
+    # 1000PEPEUSDT: {canonical: PEPE, contract_mult: 1000}
+  hyperliquid: {}
+    # kPEPE: {canonical: PEPE, contract_mult: 1000}

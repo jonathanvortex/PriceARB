@@ -51,6 +51,7 @@ async def main(symbol: str, seconds: float) -> None:
     async with httpx.AsyncClient(base_url=REST_BASE, timeout=10) as http:
         for name, path, params in [
             ("exchange_info.json", "/fapi/v1/exchangeInfo", None),
+            ("funding_info.json", "/fapi/v1/fundingInfo", None),
             (
                 f"depth_snapshot_{s}.json",
                 "/fapi/v1/depth",

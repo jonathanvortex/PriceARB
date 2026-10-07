@@ -7,6 +7,9 @@ API details verified against Binance's official docs and the official
   - `GET /fapi/v1/exchangeInfo`            instruments (weight 1)
   - `GET /fapi/v1/depth?limit=1000`        book snapshot (weight 20)
   - `GET /fapi/v1/premiumIndex?symbol=`    mark/index price + funding (weight 1)
+  - `GET /fapi/v1/fundingInfo`             per-symbol funding interval, listed only for
+                                           symbols whose interval/cap was adjusted
+                                           (shares 500 req / 5 min / IP with fundingRate)
 - WS base `wss://fstream.binance.com`, routed by traffic class since 2026-03:
   - `/public/stream?streams=<sym>@depth@100ms`  diff book depth
   - `/market/stream?streams=<sym>@aggTrade`     aggregate trades
@@ -34,6 +37,15 @@ from websockets.asyncio.client import connect as ws_connect
 from websockets.exceptions import WebSocketException
 
 from vortex.adapters.base import GapCallback
+from vortex.adapters.symbols import (
+    SymbolMap,
+    canonical_levels,
+    canonical_px,
+    canonical_qty,
+    check_unique,
+    load_symbol_map,
+    resolve,
+)
 from vortex.schema.models import (
     BookSnapshot,
     FundingObs,
@@ -70,8 +82,13 @@ def loads(raw: str | bytes) -> Any:
 # ---------------------------------------------------------------------------
 
 
-def parse_exchange_info(payload: dict, quote_ccy: str) -> list[Instrument]:
-    """Tradeable linear perpetuals quoted in `quote_ccy`. canonical = baseAsset."""
+def parse_exchange_info(
+    payload: dict, quote_ccy: str, symbol_map: SymbolMap | None = None
+) -> list[Instrument]:
+    """Tradeable linear perpetuals quoted in `quote_ccy`.
+
+    canonical = baseAsset unless overridden in params/instruments.yaml.
+    """
     out = []
     for s in payload["symbols"]:
         if (
@@ -81,14 +98,16 @@ def parse_exchange_info(payload: dict, quote_ccy: str) -> list[Instrument]:
         ):
             continue
         filters = {f["filterType"]: f for f in s.get("filters", [])}
+        mapped = resolve(symbol_map or {}, s["symbol"], s["baseAsset"])
         out.append(
             Instrument(
                 venue_id=VENUE_ID,
                 venue_symbol=s["symbol"],
-                canonical=s["baseAsset"],
+                canonical=mapped.canonical,
                 quote_ccy=s["quoteAsset"],
                 tick_size=Decimal(filters["PRICE_FILTER"]["tickSize"]),
                 lot_size=Decimal(filters["LOT_SIZE"]["stepSize"]),
+                contract_mult=mapped.contract_mult,
             )
         )
     return out
@@ -98,7 +117,7 @@ def _levels(raw: Sequence[Sequence[str]]) -> list[PriceLevel]:
     return [(Decimal(px), Decimal(qty)) for px, qty in raw]
 
 
-def parse_agg_trade(data: dict, canonical: str, ts_local: int) -> TradePrint:
+def parse_agg_trade(data: dict, inst: Instrument, ts_local: int) -> TradePrint:
     """`m` = buyer is maker, so the aggressor was the seller.
 
     `q` includes fills against RPI orders (`nq` excludes them); we record `q`,
@@ -106,31 +125,44 @@ def parse_agg_trade(data: dict, canonical: str, ts_local: int) -> TradePrint:
     """
     return TradePrint(
         venue_id=VENUE_ID,
-        canonical=canonical,
+        canonical=inst.canonical,
         ts_exchange=ms_to_ns(data["T"]),
         ts_local=ts_local,
-        px=Decimal(data["p"]),
-        qty=Decimal(data["q"]),
+        px=canonical_px(Decimal(data["p"]), inst),
+        qty=canonical_qty(Decimal(data["q"]), inst),
         aggressor=Side.SELL if data["m"] else Side.BUY,
         trade_id=str(data["a"]),
     )
 
 
-def parse_premium_index(data: dict, canonical: str, ts_local: int) -> FundingObs:
-    """`lastFundingRate` ("latest funding rate" per docs) -> current_rate.
+def parse_funding_info(payload: list[dict]) -> dict[str, int]:
+    """venue_symbol -> fundingIntervalHours, for symbols Binance has adjusted."""
+    return {
+        row["symbol"]: int(row["fundingIntervalHours"])
+        for row in payload
+        if row.get("fundingIntervalHours")
+    }
 
-    Binance publishes no separate predicted rate here, so predicted_rate is None.
-    indexPrice is Binance's oracle-equivalent and goes to oracle_px.
+
+def parse_premium_index(
+    data: dict, inst: Instrument, funding_interval_h: int, ts_local: int
+) -> FundingObs:
+    """`lastFundingRate` is the live rate for the current interval -> current_rate.
+
+    It updates continuously and is what gets paid at nextFundingTime. Binance has no
+    separate predicted rate here, so predicted_rate is None. indexPrice is Binance's
+    oracle-equivalent and goes to oracle_px.
     """
     return FundingObs(
         venue_id=VENUE_ID,
-        canonical=canonical,
+        canonical=inst.canonical,
         ts_exchange=ms_to_ns(data["time"]),
         ts_local=ts_local,
         current_rate=Decimal(data["lastFundingRate"]),
         predicted_rate=None,
-        mark_px=Decimal(data["markPrice"]),
-        oracle_px=Decimal(data["indexPrice"]),
+        mark_px=canonical_px(Decimal(data["markPrice"]), inst),
+        oracle_px=canonical_px(Decimal(data["indexPrice"]), inst),
+        funding_interval_h=funding_interval_h,
         next_funding_ts=ms_to_ns(data["nextFundingTime"]) or None,
     )
 
@@ -181,11 +213,12 @@ class BookSync:
 
     def __init__(
         self,
-        canonical: str,
+        inst: Instrument,
         depth_levels: int,
         on_gap: GapCallback | None = None,
     ) -> None:
-        self.canonical = canonical
+        self.inst = inst
+        self.canonical = inst.canonical
         self.depth_levels = depth_levels
         self.on_gap = on_gap
         self.book = LocalBook()
@@ -268,14 +301,14 @@ class BookSync:
         return True
 
     def _emit(self, ts_exchange: int, ts_local: int) -> BookSnapshot:
-        bids, asks = self.book.top(self.depth_levels)
+        bids, asks = self.book.top(self.depth_levels)  # venue units
         return BookSnapshot(
             venue_id=VENUE_ID,
             canonical=self.canonical,
             ts_exchange=ts_exchange,
             ts_local=ts_local,
-            bids=bids,
-            asks=asks,
+            bids=canonical_levels(bids, self.inst),
+            asks=canonical_levels(asks, self.inst),
             seq=self._last_u if self._last_u is not None else self._snapshot_id,
         )
 
@@ -296,6 +329,7 @@ class BinanceUsdmAdapter:
         depth_levels: int,
         depth_update_ms: int,
         reconnect_backoff_s: Sequence[float],
+        symbol_map: SymbolMap | None = None,
         on_gap: GapCallback | None = None,
         http: httpx.AsyncClient | None = None,
         connect: Callable[[str], Any] = ws_connect,
@@ -308,6 +342,7 @@ class BinanceUsdmAdapter:
         self.depth_levels = depth_levels
         self.depth_update_ms = depth_update_ms
         self.reconnect_backoff_s = list(reconnect_backoff_s)
+        self.symbol_map = dict(symbol_map or {})
         self.on_gap = on_gap
         self._http = http or httpx.AsyncClient(timeout=10.0)
         self._connect = connect
@@ -315,10 +350,13 @@ class BinanceUsdmAdapter:
         self._rest_base = rest_base
         self._ws_base = ws_base
         self._instruments: dict[str, Instrument] = {}
+        self._instrument_list: list[Instrument] = []
 
     @classmethod
-    def from_config(cls, cfg: dict, **kwargs: Any) -> BinanceUsdmAdapter:
-        """Build from a loaded params/census.yaml."""
+    def from_config(
+        cls, cfg: dict, instruments_cfg: dict | None = None, **kwargs: Any
+    ) -> BinanceUsdmAdapter:
+        """Build from loaded params/census.yaml and params/instruments.yaml."""
         v = cfg["venues"][VENUE_ID]
         venue = Venue(
             venue_id=VENUE_ID,
@@ -333,6 +371,7 @@ class BinanceUsdmAdapter:
             depth_levels=cfg["recording"]["book_depth_levels"],
             depth_update_ms=v["depth_update_ms"],
             reconnect_backoff_s=cfg["recording"]["reconnect_backoff_s"],
+            symbol_map=load_symbol_map(instruments_cfg, VENUE_ID),
             **kwargs,
         )
 
@@ -347,27 +386,38 @@ class BinanceUsdmAdapter:
         return loads(resp.content)
 
     async def load_instruments(self) -> list[Instrument]:
-        instruments = parse_exchange_info(await self._get("/fapi/v1/exchangeInfo"), self.quote_ccy)
+        instruments = parse_exchange_info(
+            await self._get("/fapi/v1/exchangeInfo"), self.quote_ccy, self.symbol_map
+        )
+        self._instrument_list = instruments
         self._instruments = {i.canonical: i for i in instruments}
         return instruments
 
-    async def _resolve(self, canonicals: list[str]) -> dict[str, str]:
-        """venue_symbol -> canonical."""
+    async def _resolve(self, canonicals: list[str]) -> dict[str, Instrument]:
+        """venue_symbol -> Instrument."""
         if not self._instruments:
             await self.load_instruments()
         missing = [c for c in canonicals if c not in self._instruments]
         if missing:
             raise KeyError(f"no tradeable {self.quote_ccy} perpetual on binance for {missing}")
-        return {self._instruments[c].venue_symbol: c for c in canonicals}
+        # Only the requested universe: a clash elsewhere on the venue must not stop the census.
+        check_unique(i for i in self._instrument_list if i.canonical in canonicals)
+        return {self._instruments[c].venue_symbol: self._instruments[c] for c in canonicals}
 
     async def poll_funding(self, canonicals: list[str]) -> list[FundingObs]:
+        """Fetched fresh every poll: Binance can change a symbol's interval at any time.
+
+        Symbols absent from fundingInfo use the venue default (`funding_interval_h`).
+        """
         symbols = await self._resolve(canonicals)
+        intervals = parse_funding_info(await self._get("/fapi/v1/fundingInfo"))
 
-        async def one(sym: str, canonical: str) -> FundingObs:
+        async def one(sym: str, inst: Instrument) -> FundingObs:
             data = await self._get("/fapi/v1/premiumIndex", symbol=sym)
-            return parse_premium_index(data, canonical, self._clock())
+            interval = intervals.get(sym, self.venue.funding_interval_h)
+            return parse_premium_index(data, inst, interval, self._clock())
 
-        return list(await asyncio.gather(*(one(s, c) for s, c in symbols.items())))
+        return list(await asyncio.gather(*(one(s, i) for s, i in symbols.items())))
 
     # -- Streams ------------------------------------------------------------
 
@@ -402,7 +452,7 @@ class BinanceUsdmAdapter:
 
     async def stream_books(self, canonicals: list[str]) -> AsyncIterator[BookSnapshot]:
         symbols = await self._resolve(canonicals)
-        syncs = {sym: BookSync(c, self.depth_levels, self.on_gap) for sym, c in symbols.items()}
+        syncs = {sym: BookSync(i, self.depth_levels, self.on_gap) for sym, i in symbols.items()}
         streams = [f"{s.lower()}@depth@{self.depth_update_ms}ms" for s in symbols]
 
         def on_disconnect(reason: str, ts: int) -> None:
@@ -439,14 +489,16 @@ class BinanceUsdmAdapter:
 
         def on_connect(ts: int) -> None:
             if down and self.on_gap is not None:
-                for c in symbols.values():
-                    self.on_gap(StreamGap(VENUE_ID, c, "trades", down["ts"], ts, down["reason"]))
+                for i in symbols.values():
+                    self.on_gap(
+                        StreamGap(VENUE_ID, i.canonical, "trades", down["ts"], ts, down["reason"])
+                    )
             down.clear()
 
         async for data, ts_local in self._messages("market", streams, on_disconnect, on_connect):
-            canonical = symbols.get(data.get("s"))
-            if canonical is not None and data.get("e") == "aggTrade":
-                yield parse_agg_trade(data, canonical, ts_local)
+            inst = symbols.get(data.get("s"))
+            if inst is not None and data.get("e") == "aggTrade":
+                yield parse_agg_trade(data, inst, ts_local)
 
     # -- Phase 3 only -------------------------------------------------------
 
